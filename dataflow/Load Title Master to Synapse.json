@@ -1,0 +1,49 @@
+{
+	"name": "Load Title Master to Synapse",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "dl_title_master",
+						"type": "DatasetReference"
+					},
+					"name": "Brozen"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dwh_title_master_md",
+						"type": "DatasetReference"
+					},
+					"name": "SynapseStorage"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          TitleCode as string,",
+				"          TitleDescription as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Brozen",
+				"Brozen sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          TitleCode as string,",
+				"          TitleDescription as string",
+				"     ),",
+				"     partitionFileNames:['payroll_title_md.csv'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> SynapseStorage"
+			]
+		}
+	}
+}
